@@ -50,6 +50,7 @@ begin
                 when StartBit=>
                     if pulse_count_reg = "00000000" then
                         TX_tmp <= '0';
+                        pulse_count_reg <= pulse_count_reg + 1; ---
                     elsif pulse_count_reg = pulse_width then
                         next_state <= SendData;
                         pulse_count_reg <= (others=>'0');
@@ -59,8 +60,9 @@ begin
                     end if;
                     
                 when SendData=>
-                    if pulse_count_reg = "00000000" then
+                    if pulse_count_reg = "00000001" then --
                         TX_tmp <= data(to_integer(data_count_reg));
+                        pulse_count_reg <= pulse_count_reg + 1; ---
                     elsif pulse_count_reg = pulse_width then
                         if data_count_reg = "111" then
                             next_state <= StopBit;
@@ -73,8 +75,10 @@ begin
                     end if;
                     
                 when StopBit=>
-                    if pulse_count_reg = "00000000" then
+                    if pulse_count_reg = "00000001" then ---
                         TX_tmp <= '1';
+                        data_count_reg <= (others=>'0');
+                        pulse_count_reg <= pulse_count_reg + 1; ---
                     elsif pulse_count_reg = pulse_width then
                         next_state <= idle;
                         pulse_count_reg <= (others=>'0');
