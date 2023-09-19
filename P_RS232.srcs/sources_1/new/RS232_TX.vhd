@@ -14,19 +14,20 @@ entity RS232_TX is
 end RS232_TX;
 
 architecture Behavioral of RS232_TX is
-signal EOT_tmp:std_logic;
-signal TX_tmp:std_logic;
-signal TX_reg, EOT_reg: std_logic;
+--signal EOT_tmp:std_logic;
+--signal TX_tmp:std_logic;
+signal TX_reg: std_logic;
+signal EOT_reg:std_logic;
 
 type state is (idle, StartBit, SendData, StopBit);
 signal current_state_reg: state;
 signal next_state: state;
 
-constant pulse_width:unsigned(7 downto 0):=to_unsigned(174,8); -- si ponemos nombre a 174 queda mÃ¡s entendible, y podemos hacer ceil(log2(174 + 1)) para obtener 7 sin que sea un "nÃºmero magico" que no se sabe de dÃ³nde viene. No es muy importante pero puede ser algo que se puede hacer en las mejoras si te apetece, igual nos hace sacar una nota mejor.
-signal pulse_count_reg:unsigned(7 downto 0):=(others=>'0'); -- Esto lo de iniciar el registro no sÃ© si me gusta, porque solo es para simulaciÃ³n, pero en mi opiniÃ³n el tb deberÃ­a empezar con un arst igual y por eso no harÃ­a falta. Lo Ãºnico que podrÃ­a hacer es hacerlo posible olvidarse de probar el arst, y no me parece buena prÃ¡ctica.
-signal pulse_count_tmp:unsigned(7 downto 0);
+constant pulse_width:unsigned(7 downto 0):=to_unsigned(174,8); -- si ponemos nombre a 174 queda más entendible, y podemos hacer ceil(log2(174 + 1)) para obtener 7 sin que sea un "número magico" que no se sabe de dónde viene. No es muy importante pero puede ser algo que se puede hacer en las mejoras si te apetece, igual nos hace sacar una nota mejor.
+signal pulse_count_reg:unsigned(7 downto 0):=(others=>'0'); -- Esto lo de iniciar el registro no sé si me gusta, porque solo es para simulación, pero en mi opinión el tb debería empezar con un arst igual y por eso no haría falta. Lo único que podría hacer es hacerlo posible olvidarse de probar el arst, y no me parece buena práctica.
+--signal pulse_count_tmp:unsigned(7 downto 0);
 signal data_count_reg:unsigned(2 downto 0);
-signal data_count_tmp:unsigned(2 downto 0);
+--signal data_count_tmp:unsigned(2 downto 0);
 
 begin
 FSM:process(clk)
@@ -56,7 +57,7 @@ begin
                     end if;
                     
                 when SendData=>
-                    if pulse_count_reg = "00000000" then -- Por quÃ© estaba a 1?
+                    if pulse_count_reg = "00000000" then -- Por qué estaba a 1?
                         TX_reg <= data(to_integer(data_count_reg));
                         pulse_count_reg <= pulse_count_reg + 1; 
                     elsif pulse_count_reg = pulse_width then
@@ -87,14 +88,18 @@ begin
     end if;
 end process;
 
-    -- Registro de EOT (No tiene que ser registrado, podemos ponerlo como lÃ³gica combinacional, pero asÃ­ habrÃ¡ glitches y supongo que eso no lo queremos. Por otro lado nos deja quitar registros, asÃ­ haciendo que sea mÃ¡s rÃ¡pido y ocupe menos espacio. Con el consumo de potencia no sÃ© si va a consumir mÃ¡s o menos, eso dependerÃ­a del resto del circuito. TambiÃ©n supongo que no tenerlo registrado va a hacer el timing dificil, y serÃ­a mejor prÃ¡ctica tenerlo registrado.) 
-EOT:PROCESS(clk)
+    -- Registro de EOT (No tiene que ser registrado, podemos ponerlo como lógica combinacional, pero así habrá glitches y supongo que eso no lo queremos. Por otro lado nos deja quitar registros, así haciendo que sea más rápido y ocupe menos espacio. Con el consumo de potencia no sé si va a consumir más o menos, eso dependería del resto del circuito. También supongo que no tenerlo registrado va a hacer el timing dificil, y sería mejor práctica tenerlo registrado.) 
+EOT_process:PROCESS(clk)
 BEGIN
-    IF clk'event AND clk='1' THEN
+    IF rising_edge(clk) THEN
         if reset='0' then
             EOT_reg <= '1';
         else
-            EOT_reg <= 1 when current_state_reg = idle else 0;
+            if current_state_reg=idle then
+                EOT_reg <= '1';
+            else 
+                EOT_reg <= '0';
+            end if;
         END IF;
     END IF;
 END PROCESS;
