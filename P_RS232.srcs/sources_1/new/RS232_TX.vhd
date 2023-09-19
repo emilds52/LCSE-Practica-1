@@ -16,43 +16,39 @@ end RS232_TX;
 architecture Behavioral of RS232_TX is
 signal EOT_tmp:std_logic;
 signal TX_tmp:std_logic;
+signal TX_reg, EOT_reg: std_logic;
+
 type state is (idle, StartBit, SendData, StopBit);
 signal current_state_reg: state;
 signal next_state: state;
-signal TX_reg, EOT_reg: std_logic;
 
-constant pulse_width:unsigned(7 downto 0):=to_unsigned(174,8);
-signal pulse_count_reg:unsigned(7 downto 0):=(others=>'0');
+constant pulse_width:unsigned(7 downto 0):=to_unsigned(174,8); -- si ponemos nombre a 174 queda más entendible, y podemos hacer ceil(log2(174 + 1)) para obtener 7 sin que sea un "número magico" que no se sabe de dónde viene. No es muy importante pero puede ser algo que se puede hacer en las mejoras si te apetece, igual nos hace sacar una nota mejor.
+signal pulse_count_reg:unsigned(7 downto 0):=(others=>'0'); -- Esto lo de iniciar el registro no sé si me gusta, porque solo es para simulación, pero en mi opinión el tb debería empezar con un arst igual y por eso no haría falta. Lo único que podría hacer es hacerlo posible olvidarse de probar el arst, y no me parece buena práctica.
+signal pulse_count_tmp:unsigned(7 downto 0);
 signal data_count_reg:unsigned(2 downto 0);
+signal data_count_tmp:unsigned(2 downto 0);
 
 begin
-process(clk)
+FSM:process(clk)
 begin
     if rising_edge(clk) then
-        if reset='0' then
-            EOT_tmp <= '0';
-            TX_tmp <= '0';
---            data_count_reg <= (others=>'0');  --Opcional
+        if reset = '0' then
+            TX_reg <= '0';
+            current_state_reg <= idle;
         else
-            if current_state_reg=idle then
-                EOT_tmp <= '1';
-            else
-                EOT_tmp <= '0';
-            end if;
-            
             case current_state_reg is
                 when idle=>
                     if start='1' then
-                        next_state <= StartBit;
-                        pulse_count_reg<=(others=>'0');
+                        current_state_reg <= StartBit;
+                        pulse_count_reg <= (others=>'0');
                     end if;
                     
                 when StartBit=>
                     if pulse_count_reg = "00000000" then
-                        TX_tmp <= '0';
-                        pulse_count_reg <= pulse_count_reg + 1; ---
+                        TX_reg <= '0';
+                        pulse_count_reg <= pulse_count_reg + 1;
                     elsif pulse_count_reg = pulse_width then
-                        next_state <= SendData;
+                        current_state_reg <= SendData;
                         pulse_count_reg <= (others=>'0');
                         data_count_reg <= (others=>'0');
                     else
@@ -60,27 +56,27 @@ begin
                     end if;
                     
                 when SendData=>
-                    if pulse_count_reg = "00000001" then --
-                        TX_tmp <= data(to_integer(data_count_reg));
-                        pulse_count_reg <= pulse_count_reg + 1; ---
+                    if pulse_count_reg = "00000000" then -- Por qué estaba a 1?
+                        TX_reg <= data(to_integer(data_count_reg));
+                        pulse_count_reg <= pulse_count_reg + 1; 
                     elsif pulse_count_reg = pulse_width then
+                        pulse_count_reg <= (others=>'0');
                         if data_count_reg = "111" then
-                            next_state <= StopBit;
+                            current_state_reg <= StopBit;
                         else
                             data_count_reg <= data_count_reg + 1;
                         end if;
-                        pulse_count_reg <= (others=>'0');
                     else
                         pulse_count_reg <= pulse_count_reg + 1;
                     end if;
                     
                 when StopBit=>
-                    if pulse_count_reg = "00000001" then ---
-                        TX_tmp <= '1';
+                    if pulse_count_reg = "00000000" then -- Lo mismo
+                        TX_reg <= '1';
                         data_count_reg <= (others=>'0');
-                        pulse_count_reg <= pulse_count_reg + 1; ---
+                        pulse_count_reg <= pulse_count_reg + 1;
                     elsif pulse_count_reg = pulse_width then
-                        next_state <= idle;
+                        current_state_reg <= idle;
                         pulse_count_reg <= (others=>'0');
                     else
                         pulse_count_reg <= pulse_count_reg + 1;
@@ -91,22 +87,19 @@ begin
     end if;
 end process;
 
-    -- Registro de estado y salidas registradas
-output:PROCESS(clk)
+    -- Registro de EOT (No tiene que ser registrado, podemos ponerlo como lógica combinacional, pero así habrá glitches y supongo que eso no lo queremos. Por otro lado nos deja quitar registros, así haciendo que sea más rápido y ocupe menos espacio. Con el consumo de potencia no sé si va a consumir más o menos, eso dependería del resto del circuito. También supongo que no tenerlo registrado va a hacer el timing dificil, y sería mejor práctica tenerlo registrado.) 
+EOT:PROCESS(clk)
 BEGIN
     IF clk'event AND clk='1' THEN
         if reset='0' then
             EOT_reg <= '1';
-            TX_reg <= '0';
-            current_state_reg <= idle;
         else
-            current_state_reg <= next_state;
-            EOT_reg <= EOT_tmp;
-            TX_reg <= TX_tmp;
+            EOT_reg <= 1 when current_state_reg = idle else 0;
         END IF;
     END IF;
 END PROCESS;
-    
+        
+    -- Outputs:
     TX <= TX_reg;
     EOT <= EOT_reg;
 
