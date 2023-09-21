@@ -14,17 +14,15 @@ entity RS232_TX is
 end RS232_TX;
 
 architecture Behavioral of RS232_TX is
---signal EOT_tmp:std_logic;
---signal TX_tmp:std_logic;
+
 signal TX_reg: std_logic;
 signal EOT_reg:std_logic;
 
 type state is (idle, StartBit, SendData, StopBit);
 signal current_state_reg: state;
-signal next_state: state;
 
-constant pulse_width:unsigned(7 downto 0):=to_unsigned(174,8); -- si ponemos nombre a 174 queda más entendible, y podemos hacer ceil(log2(174 + 1)) para obtener 7 sin que sea un "número magico" que no se sabe de dónde viene. No es muy importante pero puede ser algo que se puede hacer en las mejoras si te apetece, igual nos hace sacar una nota mejor.
-signal pulse_count_reg:unsigned(7 downto 0):=(others=>'0'); -- Esto lo de iniciar el registro no sé si me gusta, porque solo es para simulación, pero en mi opinión el tb debería empezar con un arst igual y por eso no haría falta. Lo único que podría hacer es hacerlo posible olvidarse de probar el arst, y no me parece buena práctica.
+constant pulse_width:unsigned(7 downto 0):=to_unsigned(174,8); -- si ponemos nombre a 174 queda mï¿½s entendible, y podemos hacer ceil(log2(174 + 1)) para obtener 7 sin que sea un "nï¿½mero magico" que no se sabe de dï¿½nde viene. No es muy importante pero puede ser algo que se puede hacer en las mejoras si te apetece, igual nos hace sacar una nota mejor.
+signal pulse_count_reg:unsigned(7 downto 0);
 --signal pulse_count_tmp:unsigned(7 downto 0);
 signal data_count_reg:unsigned(2 downto 0);
 --signal data_count_tmp:unsigned(2 downto 0);
@@ -57,7 +55,7 @@ begin
                     end if;
                     
                 when SendData=>
-                    if pulse_count_reg = "00000000" then -- Por qué estaba a 1?
+                    if pulse_count_reg = "00000000" then -- Por quï¿½ estaba a 1?
                         TX_reg <= data(to_integer(data_count_reg));
                         pulse_count_reg <= pulse_count_reg + 1; 
                     elsif pulse_count_reg = pulse_width then
@@ -88,7 +86,7 @@ begin
     end if;
 end process;
 
-    -- Registro de EOT (No tiene que ser registrado, podemos ponerlo como lógica combinacional, pero así habrá glitches y supongo que eso no lo queremos. Por otro lado nos deja quitar registros, así haciendo que sea más rápido y ocupe menos espacio. Con el consumo de potencia no sé si va a consumir más o menos, eso dependería del resto del circuito. También supongo que no tenerlo registrado va a hacer el timing dificil, y sería mejor práctica tenerlo registrado.) 
+    -- Registro de EOT (No tiene que ser registrado, podemos ponerlo como lï¿½gica combinacional, pero asï¿½ habrï¿½ glitches y supongo que eso no lo queremos. Por otro lado nos deja quitar registros, asï¿½ haciendo que sea mï¿½s rï¿½pido y ocupe menos espacio. Con el consumo de potencia no sï¿½ si va a consumir mï¿½s o menos, eso dependerï¿½a del resto del circuito. Tambiï¿½n supongo que no tenerlo registrado va a hacer el timing dificil, y serï¿½a mejor prï¿½ctica tenerlo registrado.) 
 EOT_process:PROCESS(clk)
 BEGIN
     IF rising_edge(clk) THEN
