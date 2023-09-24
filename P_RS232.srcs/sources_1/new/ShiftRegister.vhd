@@ -18,7 +18,7 @@ architecture Behavioral of shiftregister is
 begin
     process(CLK)
     begin
-        if RESET = '1' then
+        if RESET = '0' then
             q_aux <= (others => '0');
         elsif rising_edge(CLK) then
             if ENABLE = '1' then

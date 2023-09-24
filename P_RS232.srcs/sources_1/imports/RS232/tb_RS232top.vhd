@@ -11,7 +11,7 @@ architecture Testbench of RS232top_TB is
   component RS232top
     port (
       Reset     : in  std_logic;
-      Clk100MHz : in  std_logic;
+      Clk       : in  std_logic;
       Data_in   : in  std_logic_vector(7 downto 0);
       Valid_D   : in  std_logic;
       Ack_in    : out std_logic;
@@ -35,7 +35,7 @@ begin
   UUT: RS232top
     port map (
       Reset     => Reset,
-      Clk100MHz => Clk,
+      Clk       => Clk,
       Data_in   => Data_in,
       Valid_D   => Valid_D,
       Ack_in    => Ack_in,
