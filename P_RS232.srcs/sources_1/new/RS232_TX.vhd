@@ -23,42 +23,40 @@ signal current_state_reg: state;
 
 constant pulse_width:unsigned(7 downto 0):=to_unsigned(174,8); -- si ponemos nombre a 174 queda m�s entendible, y podemos hacer ceil(log2(174 + 1)) para obtener 7 sin que sea un "n�mero magico" que no se sabe de d�nde viene. No es muy importante pero puede ser algo que se puede hacer en las mejoras si te apetece, igual nos hace sacar una nota mejor.
 signal pulse_count_reg:unsigned(7 downto 0);
---signal pulse_count_tmp:unsigned(7 downto 0);
 signal data_count_reg:unsigned(2 downto 0);
---signal data_count_tmp:unsigned(2 downto 0);
 
 begin
 FSM:process(clk)
 begin
     if rising_edge(clk) then
         if reset = '0' then
-            TX_reg <= '0';
+            TX_reg            <= '0';
             current_state_reg <= idle;
         else
             case current_state_reg is
                 when idle=>
                     if start='1' then
                         current_state_reg <= StartBit;
-                        pulse_count_reg <= (others=>'0');
+                        pulse_count_reg   <= (others=>'0');
                     end if;
                     
                 when StartBit=>
                     if pulse_count_reg = "00000000" then
-                        TX_reg <= '0';
+                        TX_reg          <= '0';
                         pulse_count_reg <= pulse_count_reg + 1;
-                    elsif pulse_count_reg = pulse_width then
+                    elsif pulse_count_reg = pulse_width - 1 then
                         current_state_reg <= SendData;
-                        pulse_count_reg <= (others=>'0');
-                        data_count_reg <= (others=>'0');
+                        pulse_count_reg   <= (others=>'0');
+                        data_count_reg    <= (others=>'0');
                     else
                         pulse_count_reg <= pulse_count_reg + 1;
                     end if;
                     
                 when SendData=>
-                    if pulse_count_reg = "00000000" then -- Por qu� estaba a 1?
-                        TX_reg <= data(to_integer(data_count_reg));
+                    if pulse_count_reg = "00000000" then
+                        TX_reg          <= data(to_integer(data_count_reg));
                         pulse_count_reg <= pulse_count_reg + 1; 
-                    elsif pulse_count_reg = pulse_width then
+                    elsif pulse_count_reg = pulse_width - 1 then
                         pulse_count_reg <= (others=>'0');
                         if data_count_reg = "111" then
                             current_state_reg <= StopBit;
@@ -70,13 +68,13 @@ begin
                     end if;
                     
                 when StopBit=>
-                    if pulse_count_reg = "00000000" then -- Lo mismo
-                        TX_reg <= '1';
-                        data_count_reg <= (others=>'0');
+                    if pulse_count_reg = "00000000" then
+                        TX_reg          <= '1';
+                        data_count_reg  <= (others=>'0');
                         pulse_count_reg <= pulse_count_reg + 1;
-                    elsif pulse_count_reg = pulse_width then
+                    elsif pulse_count_reg = pulse_width - 1 then
                         current_state_reg <= idle;
-                        pulse_count_reg <= (others=>'0');
+                        pulse_count_reg   <= (others=>'0');
                     else
                         pulse_count_reg <= pulse_count_reg + 1;
                     end if;
@@ -103,7 +101,7 @@ BEGIN
 END PROCESS;
         
     -- Outputs:
-    TX <= TX_reg;
+    TX  <= TX_reg;
     EOT <= EOT_reg;
 
 end Behavioral;
