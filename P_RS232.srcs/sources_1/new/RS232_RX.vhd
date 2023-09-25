@@ -1,4 +1,3 @@
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -41,77 +40,84 @@ architecture Behavioral of RS232_RX is
 
     comb:process(LineRD_in, current_state_reg, reset, bitCounter_reg, stopFlag_reg, data_count_reg) --process(all) da error de sintaxis no soportado desde 1076-2008
     begin
+        -- Valores por defecto
+        next_state     <= current_state_reg;
+        data_count_tmp <= data_count_reg;
+        stopFlag_tmp   <= stopFlag_reg;
         bitCounter_tmp <= (others => '0');
-        data_count_tmp <= data_count_tmp;
-        stopFlag_tmp <= stopFlag_tmp;
-        Valid_tmp <= '0';
-        Code_tmp <= '0';
-        Store_tmp <= '0';
+        Valid_tmp      <= '0';
+        Code_tmp       <= '0';
+        Store_tmp      <= '0';
         
         case(current_state_reg) is
         
             when idle =>
-            data_count_tmp <= (others => '0');
-            stopFlag_tmp <= '0';
-                if LineRD_in='0' then
+                data_count_tmp <= (others => '0'); -- Creo que no hace falta poner esto a cero, ya que el rst lo hace y se hace al salir de stopbit
+                stopFlag_tmp   <= '0';
+                if LineRD_in = '0' then
                     next_state <= StartBit;
                 end if;
             
             when StartBit =>
-                if bitCounter_tmp = pulse_width/2 then
+                -- Contar hasta medio pulso para muestrar en el centro
+                if bitCounter_reg = pulse_width/2 - 1 then
                     bitCounter_tmp <= (others=>'0');
-                    next_state <= RcvData;
+                    next_state     <= RcvData;
                 else 
-                    bitCounter_tmp <= bitCounter_tmp + 1;
+                    bitCounter_tmp <= bitCounter_reg + 1;
                 end if;  
             
             when RcvData =>
-                if bitCounter_tmp=pulse_width then
+                if bitCounter_reg = pulse_width - 1 then
                     Valid_tmp <= '1';
-                    Code_tmp <= LineRD_in;
-                    if data_count_tmp /= to_unsigned(7,data_count_tmp'length) then
+                    Code_tmp  <= LineRD_in;
+                    if data_count_reg /= to_unsigned(7,data_count_reg'length) then
                         bitCounter_tmp <= (others=>'0');
-                        data_count_tmp <= data_count_tmp +1;
+                        data_count_tmp <= data_count_reg + 1;
                     else
                         next_state <= StopBit;
                     end if;
                 else
-                    bitCounter_tmp <= bitCounter_tmp + 1;   
+                    bitCounter_tmp <= bitCounter_reg + 1;   
                 end if;
                     
             when StopBit =>
-                if bitCounter_tmp = pulse_width and stopFlag_tmp='0' then
-                    Store_tmp <= LineRD_in;
+                if (bitCounter_reg = pulse_width - 1 and stopFlag_reg='0') then
+                    Store_tmp      <= LineRD_in;
                     bitCounter_tmp <= (others=>'0');
-                    stopFlag_tmp <= '1';
-                elsif bitCounter_tmp = pulse_width/2 and stopFlag_tmp='1' then
+                    stopFlag_tmp   <= '1';
+                elsif (bitCounter_reg = pulse_width/2 - 1 and stopFlag_reg='1') then
                     data_count_tmp <= (others => '0');
                     bitCounter_tmp <= (others => '0');
-                    stopFlag_tmp <= '0';
-                    next_state <= idle;
+                    stopFlag_tmp   <= '0';
+                    next_state     <= idle;
                 else 
-                    bitCounter_tmp <= bitCounter_tmp + 1;   
+                    bitCounter_tmp <= bitCounter_reg + 1;   
                 end if;
+
             when others =>
+                -- Valores por defecto
+                
         end case ;
     end process;
 
     reg : process( clk, reset )
     begin
         if reset='0' then
-            bitCounter_reg <= (others => '0');
-            data_count_reg <= (others => '0');
-            stopFlag_reg   <= '0';
-            Valid_reg      <= '0';
-            Code_reg       <= '0';
-            Store_reg      <= '0';
+            bitCounter_reg    <= (others => '0');
+            data_count_reg    <= (others => '0');
+            stopFlag_reg      <= '0';
+            Valid_reg         <= '0';
+            Code_reg          <= '0';
+            Store_reg         <= '0';
+            current_state_reg <= idle;
         elsif rising_edge(clk) then
-            bitCounter_reg <= bitCounter_tmp;
-            data_count_reg <= data_count_tmp;
-            stopFlag_reg <= stopFlag_tmp;
-            Valid_reg <= Valid_tmp;
-            Code_reg <= Code_tmp;
-            Store_reg <= Store_tmp;
+            bitCounter_reg    <= bitCounter_tmp;
+            data_count_reg    <= data_count_tmp;
+            stopFlag_reg      <= stopFlag_tmp;
+            Valid_reg         <= Valid_tmp;
+            Code_reg          <= Code_tmp;
+            Store_reg         <= Store_tmp;
             current_state_reg <= next_state;
         end if ;
     end process;
