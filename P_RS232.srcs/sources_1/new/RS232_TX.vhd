@@ -30,7 +30,7 @@ FSM:process(clk)
 begin
     if rising_edge(clk) then
         if reset = '0' then
-            TX_reg            <= '0';
+            TX_reg            <= '1';
             current_state_reg <= idle;
         else
             case current_state_reg is

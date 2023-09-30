@@ -28,7 +28,7 @@ architecture Testbench of RS232top_TB is
   signal TD, RD, Data_read, Full, Empty : std_logic;
   signal Data_out, Data_in : std_logic_vector(7 downto 0);
 
-  constant Tclk: time := 10 ns;  -- Clock Period 
+  constant Tclk: time := 50 ns;  -- Clock Period 
 
 begin
 

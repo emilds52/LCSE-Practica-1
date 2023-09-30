@@ -16,13 +16,13 @@ end shiftregister;
 architecture Behavioral of shiftregister is
     signal q_aux: std_logic_vector(7 downto 0) := (others => '0');
 begin
-    process(CLK)
+    process(CLK, RESET)
     begin
         if RESET = '0' then
             q_aux <= (others => '0');
         elsif rising_edge(CLK) then
             if ENABLE = '1' then
-                q_aux <= q_aux(6 downto 0) & D;
+                q_aux <= D & q_aux(7 downto 1);
             end if;
         end if;
     end process;

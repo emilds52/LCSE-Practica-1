@@ -7,7 +7,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity pruebaRS232 is
+entity nexys_RS232 is
   port (
     
 	-- Puertos PMOD de usuario (x4)
@@ -49,10 +49,10 @@ entity pruebaRS232 is
     CLK100MHZ        : in   STD_LOGIC
 
 	 );  
-end pruebaRS232;
+end nexys_RS232;
 
 
-architecture a_behavior of pruebaRS232 is
+architecture a_behavior of nexys_RS232 is
 
 -- declaración de componentes 
     component clk_wiz_0
@@ -86,7 +86,7 @@ architecture a_behavior of pruebaRS232 is
     signal reset, reset_p : std_logic;
     signal clk : std_logic;
     signal clk1, clk2, clk3, clk4, clk5, clk6, clk7 : std_logic;
-    signal s_SW : std_logic_vector(15 downto 0);
+    --signal s_SW : std_logic_vector(15 downto 0);
  
     signal contador : UNSIGNED(31 downto 0); 
     signal flag : std_logic;
@@ -103,7 +103,6 @@ architecture a_behavior of pruebaRS232 is
     signal Data_read : std_logic;   -- Send RX data to guest 
     signal Full      : std_logic;   -- Internal RX memory full 
     signal Empty     : std_logic;  -- Internal RX memory empty
-    
     
 begin
 
@@ -124,11 +123,13 @@ begin
      LED(15) <= reset;
 
 -- Señales de petición de envío y recepción de datos (entrada) 
-    Valid_D <= BTNC;
-    Data_read <= BTNU; 
+     Valid_D <= NOT (BTNC);
+     Data_read <= BTNU; 
+    -- Data_read <= BTNU;  -- ACTIVA A NIVEL BAJO!
   
 -- realimentación lineas TD => RD  (necesita un cable entre los pines 1 y 2 del pmodJA)
      JA(1) <= TD;   -- OUTPUT PORT
+     JA(2) <= 'Z';   -- OUTPUT PORT
      RD <= JA(2);   -- INPUT PORT
 
 -- conexión de las lineas TD y RD PC mediante el puerto microUSB (puerto serie RS232)
@@ -136,17 +137,17 @@ begin
 --     RD <= UART_TXD_IN;
 
 
-    CA <= '0';
-    CB <= '0';
-    CC <= '0';
-    CD <= '0';
-    CE <= '0';
-    CF <= '0';
-    CG <= '0';
+    CA <= '1';
+    CB <= '1';
+    CC <= '1';
+    CD <= '1';
+    CE <= '1';
+    CF <= '1';
+    CG <= '1';
     DP <= contador(24);
     AN <= "00000000";
 
-
+  reset_p <= not reset;
 -- instanciación de componentes 
     clk_20MHz : clk_wiz_0 PORT MAP(
         reset => reset_p,
@@ -169,7 +170,7 @@ begin
         Empty      => Empty);
 
 
-    process(clk)
+    process(reset, clk)
     begin
       if reset='0' then
         contador <= (others => '0');
