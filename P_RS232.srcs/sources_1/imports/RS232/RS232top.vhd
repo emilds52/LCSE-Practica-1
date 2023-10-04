@@ -1,8 +1,11 @@
 
 library ieee;
-   use ieee.std_logic_1164.all;
-   use ieee.numeric_std.all;
-   
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;  
+ 
+library util;
+use util.utility.all;  
+
 entity RS232top is
 
   port (
@@ -19,7 +22,11 @@ entity RS232top is
     Data_out  : out std_logic_vector(7 downto 0);  -- Parallel RX byte
     Data_read : in  std_logic;   -- Send RX data to guest 
     Full      : out std_logic;   -- Internal RX memory full 
-    Empty     : out std_logic);  -- Internal RX memory empty
+    Empty     : out std_logic;   -- Internal RX memory empty
+    
+    Speed: in std_logic_vector(1 downto 0);
+    N_bits: in std_logic_vector(1 downto 0)
+    );
 
 end RS232top;
 
