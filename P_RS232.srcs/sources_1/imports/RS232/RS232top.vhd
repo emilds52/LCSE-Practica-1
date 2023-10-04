@@ -65,7 +65,7 @@ architecture RTL of RS232top is
   component fifo
     port (
       clk   : IN  std_logic;
-      rst  : IN  std_logic;
+      srst  : IN  std_logic;
       din   : IN  std_logic_VECTOR(7 downto 0);
       wr_en : IN  std_logic;
       rd_en : IN  std_logic;
@@ -121,7 +121,7 @@ begin  -- RTL
   Internal_memory: fifo
     port map (
       clk   => clk,
-      rst  => sinit,
+      srst  => sinit,
       din   => Fifo_in,
       wr_en => Fifo_write,
       rd_en => Data_read,
