@@ -11,8 +11,8 @@ CLK: in std_logic;
 RESET: in std_logic;
 Sum_enable: in std_logic;
 Data: in std_logic_vector(7 downto 0);
-Digctrl : out std_logic_vector(6 DOWNTO 0);
-Segment : out std_logic_vector(7 DOWNTO 0)
+Digctrl : out std_logic_vector(7 DOWNTO 0);
+Segment : out std_logic_vector(6 DOWNTO 0)
 );
 end Display_cntrl;
 
@@ -102,6 +102,7 @@ end generate decoder_generate;
    begin
         if reset='0' then
             sum_t_uns <= (others => '0');
+--            digctrl <= (others => '1');
         elsif rising_edge(clk) then
             if sum_enable='1' then
                     if sum_t_uns > 99999999 then
