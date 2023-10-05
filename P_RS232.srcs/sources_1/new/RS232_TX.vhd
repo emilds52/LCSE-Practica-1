@@ -2,7 +2,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use utility.ALL;
+library util;
+use util.utility.ALL;
 
 entity RS232_TX is
     port (
@@ -113,7 +114,7 @@ begin
         when others =>
             pulse_width <= pulse_width_default - 1;
     end case ;
-end process
+end process;
 
 -- Registro de EOT (No tiene que ser registrado, podemos ponerlo como l�gica combinacional, pero as� habr� glitches y supongo que eso no lo queremos. Por otro lado nos deja quitar registros, as� haciendo que sea m�s r�pido y ocupe menos espacio. Con el consumo de potencia no s� si va a consumir m�s o menos, eso depender�a del resto del circuito. Tambi�n supongo que no tenerlo registrado va a hacer el timing dificil, y ser�a mejor pr�ctica tenerlo registrado.) 
 EOT_process:PROCESS(clk)
