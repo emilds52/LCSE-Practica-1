@@ -23,13 +23,7 @@ entity nexys_RS232 is
 ---------------------------------------------------------------------------------------
 	
 	-- Displays 7 segmentos (x8)
-    CA                 : out  STD_LOGIC;    
-    CB                 : out  STD_LOGIC;    
-    CC                 : out  STD_LOGIC;    
-    CD                 : out  STD_LOGIC;    
-    CE                 : out  STD_LOGIC;    
-    CF                 : out  STD_LOGIC;    
-    CG                 : out  STD_LOGIC;    
+    DIGCTRL            : out STD_LOGIC_VECTOR(6 downto 0);
     DP                 : out  STD_LOGIC;    
     AN                 : out  STD_LOGIC_VECTOR(7 downto 0);    
 
@@ -84,7 +78,17 @@ architecture a_behavior of nexys_RS232 is
         N_bits    : in std_logic_vector(1 downto 0)
         );
     end component;
-
+    
+    component Display_cntrl is
+    port(
+    CLK: in std_logic;
+    RESET: in std_logic;
+    Sum_enable: in std_logic;
+    Data: in std_logic_vector(7 downto 0);
+    Digctrl : out std_logic_vector(7 DOWNTO 0);
+    Segment : out std_logic_vector(6 DOWNTO 0)
+    );
+    end component;
 
 -- declaración de señales 
     signal reset, reset_p : std_logic;
@@ -150,14 +154,6 @@ N_bits <= SW(11 downto 10);
 --     UART_RXD_OUT <= TD;
 --     RD <= UART_TXD_IN;
 
-
-    CA <= '1';
-    CB <= '1';
-    CC <= '1';
-    CD <= '1';
-    CE <= '1';
-    CF <= '1';
-    CG <= '1';
     DP <= contador(24);
     AN <= "00000000";
 
@@ -185,7 +181,16 @@ N_bits <= SW(11 downto 10);
         Speed      => Speed,
         N_bits     => N_bits
         );
-
+        
+        display_ctrl_inst: Display_cntrl
+        port map(
+        clk => clk,
+        reset => reset,
+        Sum_enable => Valid_D,
+        Data => Data_out,
+        Digctrl => DIGCTRL,
+        segment => AN
+        );
 
     process(reset, clk)
     begin

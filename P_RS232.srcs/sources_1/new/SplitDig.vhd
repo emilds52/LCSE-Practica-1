@@ -9,7 +9,7 @@ CLK: in std_logic;
 Reset: in std_logic;
 Data_i: in std_logic_vector(26 downto 0);
 Enable: in std_logic;
-Data_o: out std_logic_vector(32 downto 0) --4 4 4
+Data_o: out std_logic_vector(31 downto 0) --4 4 4
 );
 end SplitDig;
 
@@ -31,14 +31,14 @@ begin
     if rising_edge(clk) then
         if enable='1' then
             --división de 8 a 0 en tres vectores de 4 elementos
-            Data_o_uns(3 downto 0) <= Data_i_uns mod 10;
-            Data_o_uns(7 downto 4) <= (Data_i_uns mod 100) / 10; --no hace falta hacer mod 10, trunca ((Data_i_uns - (Data_i_uns mod 10))mod 100)
-            Data_o_uns(11 downto 8) <= (Data_i_uns mod 1000) / 100;
-            Data_o_uns(15 downto 12) <= (Data_i_uns mod 10000) / 1000;
-            Data_o_uns(19 downto 16) <= (Data_i_uns mod 100000) / 10000;
-            Data_o_uns(23 downto 20) <= (Data_i_uns mod 1000000) / 100000;
-            Data_o_uns(27 downto 24) <= (Data_i_uns mod 10000000) / 1000000;
-            Data_o_uns(31 downto 28) <= (Data_i_uns mod 100000000) / 10000000;
+            Data_o_uns(3 downto 0) <= resize(Data_i_uns mod 10,4);
+            Data_o_uns(7 downto 4) <= resize((Data_i_uns mod 100) / 10,4); --no hace falta hacer mod 10, trunca ((Data_i_uns - (Data_i_uns mod 10))mod 100)
+            Data_o_uns(11 downto 8) <= resize((Data_i_uns mod 1000) / 100,4);
+            Data_o_uns(15 downto 12) <= resize((Data_i_uns mod 10000) / 1000,4);
+            Data_o_uns(19 downto 16) <= resize((Data_i_uns mod 100000) / 10000,4);
+            Data_o_uns(23 downto 20) <= resize((Data_i_uns mod 1000000) / 100000,4);
+            Data_o_uns(27 downto 24) <= resize((Data_i_uns mod 10000000) / 1000000,4);
+            Data_o_uns(31 downto 28) <= resize((Data_i_uns mod 100000000) / 10000000,4);
         end if;
     end if;
 end process;

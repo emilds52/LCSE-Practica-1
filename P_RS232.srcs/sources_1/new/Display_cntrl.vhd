@@ -11,8 +11,8 @@ CLK: in std_logic;
 RESET: in std_logic;
 Sum_enable: in std_logic;
 Data: in std_logic_vector(7 downto 0);
-Digctrl : out std_logic_vector(7 DOWNTO 0);
-Segment : out std_logic_vector(6 DOWNTO 0)
+Digctrl : out std_logic_vector(6 DOWNTO 0);
+Segment : out std_logic_vector(7 DOWNTO 0)
 );
 end Display_cntrl;
 
@@ -28,7 +28,7 @@ Data_o: out std_logic_vector(31 downto 0) --4 4 4
 );
 end component;
 
-signal data_split: std_logic_vector(11 downto 0);
+signal data_split: std_logic_vector(31 downto 0);
 
 component decoder IS
 PORT (
@@ -46,7 +46,7 @@ constant divisor : std_logic_vector(19 DOWNTO 0) := x"1B207";
 
 signal dig_count: integer range 0 to 7;
 
-type std_arr is array (4 downto 0) of  std_logic_vector(6 downto 0);
+type std_arr is array (7 downto 0) of  std_logic_vector(6 downto 0);
 signal Segment_arr: std_arr;
 
 --9999 9999 is 27b (101111101011110000011111111)

@@ -105,19 +105,19 @@ pulse_width_comb:process(Speed_reg)
 begin
     case( Speed_reg ) is
         when quarter =>
-            pulse_width <= pulse_width_default*4 - 1;
+            pulse_width <= resize(pulse_width_default*4 - 1,pulse_width'length);
         
         when half =>
-            pulse_width <= pulse_width_default*2 - 1;
+            pulse_width <= resize(pulse_width_default*2 - 1,pulse_width'length);
 
         when normal =>
-            pulse_width <= pulse_width_default - 1;
+            pulse_width <= resize(pulse_width_default - 1,pulse_width'length);
 
         when doble =>
-            pulse_width <= pulse_width_default/2 - 1;
+            pulse_width <= resize(pulse_width_default/2 - 1,pulse_width'length);
 
         when others =>
-            pulse_width <= pulse_width_default - 1;
+            pulse_width <= resize(pulse_width_default - 1,pulse_width'length);
     end case;
 end process;
 
@@ -127,19 +127,19 @@ N_bits_comb:process(N_bits_reg)
 begin
     case( N_bits_reg ) is
         when fiveBits =>
-            word_length <= to_unsigned(4,2);
+            word_length <= to_unsigned(4,3);
         
         when sixBits =>
-            word_length <= to_unsigned(5,2);
+            word_length <= to_unsigned(5,3);
 
         when sevenBits =>
-            word_length <= to_unsigned(6,2);
+            word_length <= to_unsigned(6,3);
 
         when eightBits =>
-            word_length <= to_unsigned(7,2);
+            word_length <= to_unsigned(7,3);
 
         when others =>
-            word_length <= to_unsigned(7,2); -- por si acaso
+            word_length <= to_unsigned(7,3); -- por si acaso
     end case;
 end process;
 
