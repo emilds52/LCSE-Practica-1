@@ -4,7 +4,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;  
  
 library util;
-use util.utility.all;  
+use util.utility.all;   
 
 entity RS232top is
 
@@ -42,8 +42,11 @@ architecture RTL of RS232top is
       Reset : in  std_logic;
       Start : in  std_logic;
       Data  : in  std_logic_vector(7 downto 0);
-      EOT   : out std_logic;
-      TX    : out std_logic);
+      Speed  : in  speed_t;
+      N_bits : in  nbits_t;
+      EOT    : out std_logic;
+      TX     : out std_logic
+      );
   end component;
 
   ------------------------------------------------------------------------
@@ -64,6 +67,8 @@ architecture RTL of RS232top is
       Clk       : in  std_logic;
       Reset     : in  std_logic;
       LineRD_in : in  std_logic;
+      Speed  : in  speed_t;
+      N_bits : in  nbits_t;
       Valid_out : out std_logic;
       Code_out  : out std_logic;
       Store_out : out std_logic);
@@ -95,7 +100,13 @@ architecture RTL of RS232top is
   signal Fifo_write : std_logic;
   signal TX_RDY_i   : std_logic;
 
+  signal speed_tmp: speed_t;
+  signal nbits_tmp: nbits_t;
+  
 begin  -- RTL
+
+speed_tmp <= speed_t'val(to_integer(unsigned(speed)));
+nbits_tmp <= nbits_t'val(to_integer(unsigned(n_bits)));
 
   Transmitter: RS232_TX
     port map (
@@ -103,17 +114,23 @@ begin  -- RTL
       Reset => Reset,
       Start => StartTX,
       Data  => Data_FF,
+      Speed => speed_tmp,
+      N_bits => nbits_tmp,
       EOT   => TX_RDY_i,
-      TX    => TD);
+      TX    => TD
+      );
 
   Receiver: RS232_RX
     port map (
       Clk       => Clk,
       Reset     => Reset,
       LineRD_in => LineRD_in,
+      Speed => speed_tmp,
+      N_bits => nbits_tmp,
       Valid_out => Valid_out,
       Code_out  => Code_out,
-      Store_out => Fifo_write);
+      Store_out => Fifo_write
+      );
 
   Shift: ShiftRegister
     port map (

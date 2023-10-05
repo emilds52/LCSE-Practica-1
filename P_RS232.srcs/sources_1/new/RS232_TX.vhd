@@ -43,7 +43,7 @@ begin
             TX_reg            <= '1';
             current_state_reg <= idle;
             Speed_reg         <= normal;
-            N_bits_reg        <= eight;
+            N_bits_reg        <= eightbits;
         else
             case current_state_reg is
                 when idle=>
