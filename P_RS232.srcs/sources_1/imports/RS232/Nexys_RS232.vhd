@@ -23,7 +23,7 @@ entity nexys_RS232 is
 ---------------------------------------------------------------------------------------
 	
 	-- Displays 7 segmentos (x8)
-    DIGCTRL            : out STD_LOGIC_VECTOR(6 downto 0);
+    SEGMENT            : out STD_LOGIC_VECTOR(6 downto 0);
     DP                 : out  STD_LOGIC;    
     AN                 : out  STD_LOGIC_VECTOR(7 downto 0);    
 
@@ -155,7 +155,6 @@ N_bits <= SW(11 downto 10);
 --     RD <= UART_TXD_IN;
 
     DP <= contador(24);
-    AN <= "00000000";
 
   reset_p <= not reset;
 -- instanciación de componentes 
@@ -186,10 +185,10 @@ N_bits <= SW(11 downto 10);
         port map(
         clk => clk,
         reset => reset,
-        Sum_enable => Valid_D,
+        Sum_enable => BTNC,
         Data => Data_out,
-        Digctrl => DIGCTRL,
-        segment => AN
+        Digctrl => AN,
+        segment => SEGMENT
         );
 
     process(reset, clk)
