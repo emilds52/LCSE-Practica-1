@@ -47,7 +47,7 @@ architecture Behavioral of RS232_RX is
     signal next_state        : state;
 begin
     
-    comb:process(LineRD_in, current_state_reg, bitCounter_reg, stopFlag_reg, data_count_reg, Speed, N_bits) --process(all) da error de sintaxis no soportado desde 1076-2008
+    comb:process(LineRD_in, current_state_reg, bitCounter_reg, stopFlag_reg, data_count_reg, Speed, N_bits, Speed_reg, N_bits_reg, pulse_width, word_length) --process(all) da error de sintaxis no soportado desde 1076-2008
     begin
         -- Valores por defecto
         next_state     <= current_state_reg;
