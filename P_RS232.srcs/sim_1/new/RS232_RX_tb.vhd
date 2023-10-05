@@ -2,30 +2,37 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
+library util;
+use util.utility.all;
+
 entity RS232_RX_tb is
 end RS232_RX_tb;
 
 architecture Behavioral of RS232_RX_tb is
 
     component RS232_TX is
-        port (
-          Clk   : in  std_logic;
-          Reset : in  std_logic;
-          Start : in  std_logic;
-          Data  : in  std_logic_vector(7 downto 0);
-          EOT   : out std_logic;
-          TX    : out std_logic);
+    port (
+      Clk   : in  std_logic;
+      Reset : in  std_logic;
+      Start : in  std_logic;
+      Data  : in  std_logic_vector(7 downto 0);
+      Speed  : in  speed_t;
+      N_bits : in  nbits_t;
+      EOT    : out std_logic;
+      TX     : out std_logic
+      );
     end component;
     
     component RS232_RX is
-        port (
-            Clk       : in  std_logic;
-            Reset     : in  std_logic;
-            LineRD_in : in  std_logic;
-            Valid_out : out std_logic;
-            Code_out  : out std_logic;
-            Store_out : out std_logic
-        );
+    port (
+      Clk       : in  std_logic;
+      Reset     : in  std_logic;
+      LineRD_in : in  std_logic;
+      Speed  : in  speed_t;
+      N_bits : in  nbits_t;
+      Valid_out : out std_logic;
+      Code_out  : out std_logic;
+      Store_out : out std_logic);
     end component;
     
     signal clk: std_logic := '0';
@@ -41,27 +48,34 @@ architecture Behavioral of RS232_RX_tb is
     signal Data: std_logic_vector(7 downto 0):=(others=>'0');
     signal EOT: std_logic:='0';
     
+    signal N_bits: nbits_t;
+    signal Speed: speed_t;
+    
     begin
     
-    TX: RS232_TX
-    port map(
-        CLK=>CLK,
-        RESET=>RESET,
-        STart=>STart,
-        Data=>DAta,
-        EOT=>EOT,
-        TX=>LineRD_in
-    );
-    
-    RX: RS232_RX
-    port map(
-        CLK=>CLK,
-        RESET=>RESET,
-        LineRD_in=>LineRD_in,
-        Valid_out=>Valid_out,
-        Code_out=>Code_out,
-        Store_out=>Store_out
-    );
+  RX: RS232_TX
+      port map (
+        Clk   => Clk,
+        Reset => Reset,
+        Start => StartTX,
+        Data  => Data_FF,
+        Speed => speed_tmp,
+        N_bits => nbits_tmp,
+        EOT   => TX_RDY_i,
+        TX    => TD
+        );
+  
+    RD: RS232_RX
+      port map (
+        Clk       => Clk,
+        Reset     => Reset,
+        LineRD_in => LineRD_in,
+        Speed => speed_tmp,
+        N_bits => nbits_tmp,
+        Valid_out => Valid_out,
+        Code_out  => Code_out,
+        Store_out => Fifo_write
+        );
     
     process
     begin
