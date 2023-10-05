@@ -57,12 +57,12 @@ architecture Behavioral of RS232_RX_tb is
       port map (
         Clk   => Clk,
         Reset => Reset,
-        Start => StartTX,
-        Data  => Data_FF,
-        Speed => speed_tmp,
-        N_bits => nbits_tmp,
-        EOT   => TX_RDY_i,
-        TX    => TD
+        Start => Start,
+        Data  => Data,
+        Speed => speed,
+        N_bits => n_bits,
+        EOT   => eot,
+        TX    => linerd_in
         );
   
     RD: RS232_RX
@@ -70,11 +70,11 @@ architecture Behavioral of RS232_RX_tb is
         Clk       => Clk,
         Reset     => Reset,
         LineRD_in => LineRD_in,
-        Speed => speed_tmp,
-        N_bits => nbits_tmp,
+        Speed => speed,
+        N_bits => n_bits,
         Valid_out => Valid_out,
         Code_out  => Code_out,
-        Store_out => Fifo_write
+        Store_out => store_out
         );
     
     process

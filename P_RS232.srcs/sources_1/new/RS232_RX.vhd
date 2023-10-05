@@ -40,7 +40,7 @@ architecture Behavioral of RS232_RX is
     signal   Speed_tmp           : speed_t;
     signal   N_bits_reg          : nbits_t;
     signal   N_bits_tmp          : nbits_t;
-
+    signal   zeroFillCondition   : boolean;
 
     type state is (idle, StartBit, RcvData, StopBit);
     signal current_state_reg : state;
@@ -106,7 +106,11 @@ begin
                     stopFlag_tmp   <= '0';
                     next_state     <= idle;
                 else 
-                    bitCounter_tmp <= bitCounter_reg + 1;   
+                    bitCounter_tmp <= bitCounter_reg + 1;
+                    if zeroFillCondition then
+                        Valid_tmp <= '1';
+                        Code_tmp  <= '0';
+                    end if;
                 end if;
 
             when others =>
@@ -115,6 +119,10 @@ begin
         end case ;
     end process;
     
+    zeroFillCondition <= ((bitCounter_reg = to_unsigned(0,bitCounter_reg'length)) and (N_bits_reg /= eightbits)) or
+                         ((bitCounter_reg = to_unsigned(1,bitCounter_reg'length)) and (N_bits_reg = fivebits or N_bits_reg = sixbits)) or
+                         ((bitCounter_reg = to_unsigned(2,bitCounter_reg'length)) and (N_bits_reg = fivebits));
+
     -- Multiplexor para decidir a qué pulse length contar, Speed_reg no cambia fuera de idle
     pulse_width_comb:process(Speed_reg)
     begin
