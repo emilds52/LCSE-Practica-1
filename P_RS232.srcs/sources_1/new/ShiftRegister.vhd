@@ -14,7 +14,7 @@ Q:out std_logic_vector(7 downto 0)
 end shiftregister;
 
 architecture Behavioral of shiftregister is
-    signal q_aux: std_logic_vector(7 downto 0) := (others => '0');
+    signal q_aux: std_logic_vector(7 downto 0);
 begin
     process(CLK, RESET)
     begin

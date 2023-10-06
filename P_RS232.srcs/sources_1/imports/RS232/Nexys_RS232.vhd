@@ -89,6 +89,7 @@ architecture a_behavior of nexys_RS232 is
     Segment : out std_logic_vector(6 DOWNTO 0)
     );
     end component;
+    
 
 -- declaración de señales 
     signal reset, reset_p : std_logic;
@@ -96,7 +97,9 @@ architecture a_behavior of nexys_RS232 is
     signal clk1, clk2, clk3, clk4, clk5, clk6, clk7 : std_logic;
     --signal s_SW : std_logic_vector(15 downto 0);
  
-    signal contador : UNSIGNED(31 downto 0); 
+    signal contador : UNSIGNED(24 downto 0); 
+    signal contador_reg : UNSIGNED(24 downto 0); 
+
     signal flag : std_logic;
 
 -- signals for UUT (RS_232top) 
@@ -154,7 +157,7 @@ N_bits <= SW(11 downto 10);
 --     UART_RXD_OUT <= TD;
 --     RD <= UART_TXD_IN;
 
-    DP <= contador(24);
+    DP <= flag;
 
   reset_p <= not reset;
 -- instanciación de componentes 
@@ -190,21 +193,30 @@ N_bits <= SW(11 downto 10);
         Digctrl => AN,
         segment => SEGMENT
         );
-
+        
+   
     process(reset, clk)
     begin
       if reset='0' then
         contador <= (others => '0');
         flag <= '0';
-      elsif clk'event and clk='1' then
-          contador <= contador + 1;
-          if contador >= 100000000 then
+      elsif rising_edge(clk) then
+          contador <= contador_reg + 1;
+          if contador >= 5000000 then
             contador <= (others => '0');
             flag <= not flag;
           end if; 
       end if;
     end process;      
     
+    contador_reg_process: process(reset, clk)
+    begin
+      if reset='0' then
+        contador_reg <= (others => '0');
+      elsif rising_edge(clk) then
+          contador_reg <= contador;
+      end if;
+    end process;   
                    
 -- otros procesos
    -- (...)
