@@ -97,8 +97,11 @@ begin
      wait for Tclk/2;
   END PROCESS;
   
-Valid_D <= not Valid_D after 250*TClk2;
-Data_read <= not Data_read after 200*TClk2;
+  
+  Valid_d <= '0';
+  Data_read <= '1';
+--Valid_D <= not Valid_D after 250*TClk2;
+--Data_read <= not Data_read after 200*TClk2;
 
 
 ----------------------------------
@@ -115,8 +118,8 @@ Data_read <= not Data_read after 200*TClk2;
      BTNU <= Data_read; 
   
 -- realimentación lineas TD => RD  (necesita un cable entre los pines 1 y 2 del pmodJA)
-     TD <= JA(1);   -- OUTPUT PORT
-     JA(2) <= RD;   -- INPUT PORT
+    TD <= JA(1);   -- OUTPUT PORT
+    JA(2) <= RD;   -- INPUT PORT
 
 --Mejoras
 speed <= speed_t'val(to_integer(unsigned(SW(9 downto 8))));
@@ -138,22 +141,29 @@ sw(7 downto 0) <= data_in_s;
     Data_in := "11111111";
     Data_in_S <= data_in;
     Transmit(RD,Data_in);
-    wait for 2*TClk2;
+    wait for 500*TClk2;
     -----------------------
     SW(11 downto 10) <= "11";
     wait for TCLK2;      
     Data_in := "11111111";
     Data_in_S <= data_in;
     Transmit(RD,Data_in);
-    wait for 2*TClk2;
+    wait for 500*TClk2;
     ------------------------
     SW(11 downto 10) <= "10";
     wait for TCLK2;
     Data_in := "11111111";
     Data_in_S <= data_in;
     Transmit(RD,Data_in);
-    wait for 2*TClk2;
-    wait for 10*TClk2;
+    wait for 500*TClk2;
+    ------------------------
+    SW(11 downto 10) <= "01";
+    wait for TCLK2;      
+    Data_in := "11111111";
+    Data_in_S <= data_in;
+    Transmit(RD,Data_in);
+    wait for 500*TClk2;
+    ------------------------
     
 --    wait for TClk2;
 
