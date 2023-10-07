@@ -4,12 +4,11 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity shiftregister is
 port(
-CLK: in std_logic;
-RESET: in std_logic;
-ENABLE: in std_logic;
-D: in std_logic;
-
-Q:out std_logic_vector(7 downto 0)
+    CLK    : in std_logic;
+    RESET  : in std_logic;
+    ENABLE : in std_logic;
+    D      : in std_logic;
+    Q      : out std_logic_vector(7 downto 0)
 );
 end shiftregister;
 

@@ -67,8 +67,8 @@ architecture RTL of RS232top is
       Clk       : in  std_logic;
       Reset     : in  std_logic;
       LineRD_in : in  std_logic;
-      Speed  : in  speed_t;
-      N_bits : in  nbits_t;
+      Speed     : in  speed_t;
+      N_bits    : in  nbits_t;
       Valid_out : out std_logic;
       Code_out  : out std_logic;
       Store_out : out std_logic);
@@ -99,9 +99,9 @@ architecture RTL of RS232top is
   signal Fifo_in    : std_logic_vector(7 downto 0);
   signal Fifo_write : std_logic;
   signal TX_RDY_i   : std_logic;
-
-  signal speed_tmp: speed_t;
-  signal nbits_tmp: nbits_t;
+  -- Signals to convert from std_logic_vector to enum types
+  signal speed_tmp : speed_t;
+  signal nbits_tmp : nbits_t;
   
 begin  -- RTL
 

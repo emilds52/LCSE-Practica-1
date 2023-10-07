@@ -42,9 +42,9 @@ architecture Behavioral of RS232_RX is
     signal   N_bits_tmp          : nbits_t;
     signal   zeroFillCondition   : boolean;
 
-    type state is (idle, StartBit, RcvData, StopBit);
-    signal current_state_reg : state;
-    signal next_state        : state;
+    type state_t is (idle, StartBit, RcvData, StopBit);
+    signal current_state_reg : state_t;
+    signal next_state        : state_t;
 begin
     
     comb:process(LineRD_in, current_state_reg, bitCounter_reg, stopFlag_reg, data_count_reg, Speed, N_bits, Speed_reg, N_bits_reg, pulse_width, word_length, zeroFillCondition) --process(all) da error de sintaxis no soportado desde 1076-2008
@@ -63,7 +63,7 @@ begin
         case(current_state_reg) is
         
             when idle =>
-                data_count_tmp <= (others => '0'); -- Creo que no hace falta poner esto a cero, ya que el rst lo hace y se hace al salir de stopbit
+                data_count_tmp <= (others => '0');
                 stopFlag_tmp   <= '0';
                 -- Solo actualizar la velocidad de transmisón y el número de bits en el estado de idle
                 Speed_tmp <= Speed;
@@ -85,11 +85,11 @@ begin
                 if bitCounter_reg = pulse_width then
                     Valid_tmp <= '1';
                     Code_tmp  <= LineRD_in;
-                    if data_count_reg /= word_length then -- Not equals is cheaper than less than (pedantic)
+                    if data_count_reg = word_length then
+                        next_state <= StopBit;
+                    else
                         bitCounter_tmp <= (others=>'0');
                         data_count_tmp <= data_count_reg + 1;
-                    else
-                        next_state <= StopBit;
                     end if;
                 else
                     bitCounter_tmp <= bitCounter_reg + 1;   
@@ -101,12 +101,11 @@ begin
                     bitCounter_tmp <= (others=>'0');
                     stopFlag_tmp   <= '1';
                 elsif (bitCounter_reg = ('0' & pulse_width(9 downto 1)) and stopFlag_reg='1') then -- bitshift para dividir por dos
-                    data_count_tmp <= (others => '0');
-                    bitCounter_tmp <= (others => '0');
                     stopFlag_tmp   <= '0';
                     next_state     <= idle;
                 else 
                     bitCounter_tmp <= bitCounter_reg + 1;
+                    -- Rellenar con ceros si usamos menos de 8 bits
                     if zeroFillCondition then
                         Valid_tmp <= '1';
                         Code_tmp  <= '0';
@@ -119,6 +118,7 @@ begin
         end case ;
     end process;
     
+    -- Lógica combinacional para calcular si hay que rellenar con ceros en el caso de menos de 8 bits
     zeroFillCondition <= ((bitCounter_reg = to_unsigned(0,bitCounter_reg'length)) and (N_bits_reg /= eightbits)) or
                          ((bitCounter_reg = to_unsigned(1,bitCounter_reg'length)) and (N_bits_reg = fivebits or N_bits_reg = sixbits)) or
                          ((bitCounter_reg = to_unsigned(2,bitCounter_reg'length)) and (N_bits_reg = fivebits));
