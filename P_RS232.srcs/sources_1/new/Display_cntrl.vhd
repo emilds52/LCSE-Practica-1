@@ -112,7 +112,7 @@ end generate decoder_generate;
             sum_t <= (others => '0');
         elsif rising_edge(clk_enable) then
             sum_enable_ant <= sum_enable;
-            if (sum_enable /= sum_enable_ant and sum_enable='1') then
+            if (sum_enable /= sum_enable_ant and sum_enable='1') then --flanco de subida de sum_enable, solo suma una vez por pulsación.
                 if sum_t > 99999999 then
                     sum_t <= (others=> '0');
                 else

@@ -13,26 +13,13 @@ entity nexys_RS232 is
 	-- Puertos PMOD de usuario (x4)
 	JA 				: inout STD_LOGIC_VECTOR(2 downto 1);    
 	
-    --Interfaz USB-RS232
---    UART_TXD_IN     : in  STD_LOGIC;
---    UART_RXD_OUT    : out  STD_LOGIC;
---    UART_CTS        : in  STD_LOGIC;
---    UART_RTS        : in  STD_LOGIC;
-
-
----------------------------------------------------------------------------------------
-	
 	-- Displays 7 segmentos (x8)
-    SEGMENT            : out STD_LOGIC_VECTOR(6 downto 0);
-    DP                 : out  STD_LOGIC;    
+    SEGMENT            : out STD_LOGIC_VECTOR(6 downto 0);  
     AN                 : out  STD_LOGIC_VECTOR(7 downto 0);    
 
 -- Botones de usuario (x5)
     BTNC             : in  STD_LOGIC;    
-    BTNU             : in  STD_LOGIC;    
---    BTNL             : in  STD_LOGIC;    
---    BTNR             : in  STD_LOGIC;    
---    BTND             : in  STD_LOGIC;    
+    BTNU             : in  STD_LOGIC;      
 
 -- Interruptores (x16)
     SW                 : in   STD_LOGIC_VECTOR(15 downto 0);    
@@ -41,7 +28,6 @@ entity nexys_RS232 is
 
 -- Reloj de la FPGA
     CLK100MHZ        : in   STD_LOGIC
-
 	 );  
 end nexys_RS232;
 
@@ -81,26 +67,20 @@ architecture a_behavior of nexys_RS232 is
     
     component Display_cntrl is
     port(
-    CLK: in std_logic;
-    RESET: in std_logic;
-    Sum_enable: in std_logic;
-    Data: in std_logic_vector(7 downto 0);
-    Digctrl : out std_logic_vector(7 DOWNTO 0);
-    Segment : out std_logic_vector(6 DOWNTO 0)
+        CLK: in std_logic;
+        RESET: in std_logic;
+        Sum_enable: in std_logic;
+        Data: in std_logic_vector(7 downto 0);
+        Digctrl : out std_logic_vector(7 DOWNTO 0);
+        Segment : out std_logic_vector(6 DOWNTO 0)
     );
     end component;
     
 
 -- declaración de señales 
-    signal reset, reset_p : std_logic;
-    signal clk : std_logic;
-    signal clk1, clk2, clk3, clk4, clk5, clk6, clk7 : std_logic;
-    --signal s_SW : std_logic_vector(15 downto 0);
- 
-    signal contador : UNSIGNED(24 downto 0); 
-    signal contador_reg : UNSIGNED(24 downto 0); 
-
-    signal flag : std_logic;
+    signal reset     : std_logic;
+    signal reset_p   : std_logic;
+    signal clk       : std_logic;
 
 -- signals for UUT (RS_232top) 
     signal Data_in   : std_logic_vector(7 downto 0);  -- Parallel TX byte 
@@ -146,7 +126,6 @@ N_bits <= SW(11 downto 10);
 -- Señales de petición de envío y recepción de datos (entrada) 
      Valid_D <= NOT (BTNC);
      Data_read <= BTNU; 
-    -- Data_read <= BTNU;  -- ACTIVA A NIVEL BAJO!
   
 -- realimentación lineas TD => RD  (necesita un cable entre los pines 1 y 2 del pmodJA)
      JA(1) <= TD;   -- OUTPUT PORT
@@ -157,7 +136,6 @@ N_bits <= SW(11 downto 10);
 --     UART_RXD_OUT <= TD;
 --     RD <= UART_TXD_IN;
 
-    DP <= flag;
 
   reset_p <= not reset;
 -- instanciación de componentes 
@@ -184,8 +162,7 @@ N_bits <= SW(11 downto 10);
         N_bits     => N_bits
         );
         
-        display_ctrl_inst: Display_cntrl
-        port map(
+    display_ctrl_inst: Display_cntrl port map(
         clk => clk,
         reset => reset,
         Sum_enable => BTNC,
@@ -193,32 +170,6 @@ N_bits <= SW(11 downto 10);
         Digctrl => AN,
         segment => SEGMENT
         );
-        
-   
-    process(reset, clk)
-    begin
-      if reset='0' then
-        contador <= (others => '0');
-        flag <= '0';
-      elsif rising_edge(clk) then
-          contador <= contador_reg + 1;
-          if contador >= 5000000 then
-            contador <= (others => '0');
-            flag <= not flag;
-          end if; 
-      end if;
-    end process;      
-    
-    contador_reg_process: process(reset, clk)
-    begin
-      if reset='0' then
-        contador_reg <= (others => '0');
-      elsif rising_edge(clk) then
-          contador_reg <= contador;
-      end if;
-    end process;   
-                   
--- otros procesos
-   -- (...)
+
 
 end a_behavior;
