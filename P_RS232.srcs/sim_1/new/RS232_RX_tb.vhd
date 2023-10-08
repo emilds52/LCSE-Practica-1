@@ -48,8 +48,8 @@ architecture Behavioral of RS232_RX_tb is
     signal Data: std_logic_vector(7 downto 0):=(others=>'0');
     signal EOT: std_logic:='0';
     
-    signal N_bits: nbits_t;
-    signal Speed: speed_t;
+    signal N_bits: nbits_t:=eightbits;
+    signal Speed: speed_t:=normal;
     
     begin
     
