@@ -153,22 +153,10 @@ sW(11 downto 10) <= std_logic_vector(s_SW);
     SW(9 downto 8) <= "10"; --115200    
     wait for 20*TClk2; 
     SW(15) <= '1';
- 
     wait for 1000*TClk2;
     ----------------------
-    Data_in := "11111111";
-    Data_in_S <= data_in;
-    wait for 20*Tclk2;
-    Transmit(RD,tiempo, Data_in);
-    wait for 1000*TClk2;
-    Transmit(RD,tiempo, Data_in);
-    wait for 1000*TClk2;
-    Transmit(RD,tiempo, Data_in);
-    wait for 1000*TClk2;
-    Transmit(RD,tiempo, Data_in);
-    wait for 1000*TClk2;
-    ------------------------
-    Data_in := "00011111";
+    SW(9 downto 8) <= "10";
+    Data_in := "11100010";
     Data_in_S <= data_in;
     wait for 20*Tclk2;
     Transmit(RD,tiempo, Data_in);
@@ -181,20 +169,6 @@ sW(11 downto 10) <= std_logic_vector(s_SW);
     wait for 1000*TClk2;
         ----------------------
     SW(9 downto 8) <= "11";
-    Data_in := "11111111";
-    Data_in_S <= data_in;
-    wait for 20*Tclk2;
-    Transmit(RD,tiempo, Data_in);
-    wait for 1000*TClk2;
-    Transmit(RD,tiempo, Data_in);
-    wait for 1000*TClk2;
-    Transmit(RD,tiempo, Data_in);
-    wait for 1000*TClk2;
-    Transmit(RD,tiempo, Data_in);
-    wait for 1000*TClk2;
-    ------------------------
-    Data_in := "00011111";
-    Data_in_S <= data_in;
     wait for 20*Tclk2;
     Transmit(RD,tiempo, Data_in);
     wait for 1000*TClk2;
@@ -205,55 +179,27 @@ sW(11 downto 10) <= std_logic_vector(s_SW);
     Transmit(RD,tiempo, Data_in);
     wait for 1000*TClk2;
             ----------------------
-SW(9 downto 8) <= "01";
-Data_in := "11111111";
-Data_in_S <= data_in;
-wait for 20*Tclk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-------------------------
-Data_in := "00011111";
-Data_in_S <= data_in;
-wait for 20*Tclk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
+    SW(9 downto 8) <= "01"; --half
+    wait for 20*Tclk2;
+    Transmit(RD,tiempo, Data_in);
+    wait for 1000*TClk2;
+    Transmit(RD,tiempo, Data_in);
+    wait for 1000*TClk2;
+    Transmit(RD,tiempo, Data_in);
+    wait for 1000*TClk2;
+    Transmit(RD,tiempo, Data_in);
+    wait for 1000*TClk2;
         ----------------------
-SW(9 downto 8) <= "00";
-Data_in := "11111111";
-Data_in_S <= data_in;
-wait for 20*Tclk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*tiempo;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-------------------------
-Data_in := "00011111";
-Data_in_S <= data_in;
-wait for 20*Tclk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
-Transmit(RD,tiempo, Data_in);
-wait for 1000*TClk2;
+    SW(9 downto 8) <= "00"; --quarter
+    wait for 20*Tclk2;
+    Transmit(RD,tiempo, Data_in);
+    wait for 1000*TClk2;
+    Transmit(RD,tiempo, Data_in);
+    wait for 1000*TClk2;
+    Transmit(RD,tiempo, Data_in);
+    wait for 1000*TClk2;
+    Transmit(RD,tiempo, Data_in);
+    wait for 1000*TClk2;
      wait;
      
   END PROCESS;
