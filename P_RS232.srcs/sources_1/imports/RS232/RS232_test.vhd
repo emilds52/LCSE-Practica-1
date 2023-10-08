@@ -9,8 +9,8 @@ PACKAGE RS232_test IS
 -------------------------------------------------------------------------------
       procedure Transmit (
         signal   TX   : out std_logic;      -- serial line
+        signal tiempo  : in time;
         constant DATA : in  std_logic_vector(7 downto 0)); -- byte to be sent
-
 END RS232_test;
 
 PACKAGE BODY RS232_test IS
@@ -20,19 +20,20 @@ PACKAGE BODY RS232_test IS
 -----------------------------------------------------------------------------     
            procedure Transmit (
              signal   TX   : out std_logic;  -- serial output
+             signal tiempo  : in time;
              constant DATA : in  std_logic_vector(7 downto 0)) is
            begin
        
              TX <= '0';
-             wait for 8680.6 ns;  -- about to send byte
+             wait for tiempo;  -- about to send byte
 
              for i in 0 to 7 loop
                TX <= DATA(i);
-               wait for 8680.6 ns;
+               wait for tiempo;
              end loop;  -- i
 
              TX <= '1';
-             wait for 8680.6 ns;
+             wait for tiempo;
 
              TX <= '1';
 
