@@ -145,7 +145,7 @@ N_bits <= SW(11 downto 10);
         clk_out1 => clk,
         locked => open);
 
-    UUT : RS232top PORT MAP(
+    RS232top_inst : RS232top PORT MAP(
         Reset      => reset, 
         Clk        => clk,
         Data_in    => Data_in,
@@ -162,7 +162,7 @@ N_bits <= SW(11 downto 10);
         N_bits     => N_bits
         );
         
-    display_ctrl_inst: Display_cntrl port map(
+    Display_ctrl_inst: Display_cntrl port map(
         clk => clk,
         reset => reset,
         Sum_enable => BTNC,

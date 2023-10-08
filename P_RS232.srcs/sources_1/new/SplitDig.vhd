@@ -15,28 +15,21 @@ end SplitDig;
 
 architecture Behavioral of SplitDig is
 
-signal Data_i_uns: unsigned(Data_i'range);
-signal Data_o_uns: unsigned(Data_o'range);
-
 begin
-
-Data_i_uns <= unsigned(Data_i);
 
 process(CLK, reset)
 begin
     if reset='0' then
-        Data_o_uns <= (others=>'0');
+        Data_o <= (others=>'0');
     elsif rising_edge(clk) then
         if enable='1' then
             --división de 8 a 0 en tres vectores de 4 elementos
             for i in 0 to 7 loop
-                Data_o_uns(3+4*i downto 4*i) <= resize((Data_i_uns mod 10**(i+1))/(10**i),4);
+                Data_o(3+4*i downto 4*i) <= std_logic_vector(resize((unsigned(Data_i) mod 10**(i+1))/(10**i),4));
             end loop;
         end if;
     end if;
 end process;
-
-Data_o <= std_logic_vector(Data_o_uns);
 
 end Behavioral;
 

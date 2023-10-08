@@ -50,7 +50,6 @@ signal Segment_arr: std_segments_arr;
 
 --9999 9999 is 27b (101111101011110000011111111)
 signal sum_t: std_logic_vector(26 downto 0);
-signal sum_t_reg: std_logic_vector(26 downto 0);
 
 signal sum_enable_ant: std_logic;
 
@@ -60,7 +59,7 @@ splitDig_inst: SplitDig
 port map(
 CLk => CLK,
 Reset => reset,
-Data_i => sum_t_reg,
+Data_i => sum_t,
 Enable => Sum_enable,
 Data_o => Data_split
 );
@@ -89,46 +88,40 @@ end generate decoder_generate;
        end if;
    end process;   
 
-    display_process: process (clk_enable, reset)
+    display_process: process (clk, reset)
     begin
         if reset='0' then
             digctrl <= (others=>'1');
             dig_count <= 0;
             Segment <= (others=>'1');
-        elsif rising_edge(clk_enable) then
-            dig_count <= dig_count +1;
-            
-            -- Clock enables based on counter value
-            digctrl <= (others => '1');
-            digctrl(dig_count) <= '0';
-            
-            Segment <= segment_arr(dig_count);
+        elsif rising_edge(clk) then
+            if clk_enable='1' then
+                dig_count <= dig_count +1;
+                
+                -- Clock enables based on counter value
+                digctrl <= (others => '1');
+                digctrl(dig_count) <= '0';
+                
+                Segment <= segment_arr(dig_count);
+            end if;
         end if;
     end process;
 
-   sum_process: process(clk_enable, reset)
+   sum_process: process(clk, reset)
    begin
         if reset='0' then
             sum_t <= (others => '0');
-        elsif rising_edge(clk_enable) then
+        elsif rising_edge(clk) then
             sum_enable_ant <= sum_enable;
             if (sum_enable /= sum_enable_ant and sum_enable='1') then --flanco de subida de sum_enable, solo suma una vez por pulsación.
                 if sum_t > 99999999 then
                     sum_t <= (others=> '0');
                 else
-                    sum_t <= sum_t_reg + Data;
+                    sum_t <= sum_t + Data;
                 end if;
             end if;
         end if;
     end process;
-    
-    sum_reg_process: process(clk_enable, reset)
-    begin
-        if reset='0' then
-            sum_t_reg <= (others => '0');
-        elsif rising_edge(clk_enable) then
-            sum_t_reg <= sum_t;              
-        end if;
-    end process;    
+     
 
 end architecture;
