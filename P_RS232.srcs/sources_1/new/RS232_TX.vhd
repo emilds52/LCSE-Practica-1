@@ -38,58 +38,57 @@ signal data_count_reg  : unsigned(2 downto 0);
 begin
 FSM:process(clk)
 begin
-    if rising_edge(clk) then
-        if reset = '0' then
-            TX_reg            <= '1';
-            current_state_reg <= idle;
-            Speed_reg         <= normal;
-            N_bits_reg        <= eightBits;
-            -- No hay reset para pulse_count_reg y data_count_reg porque no se evaluan en idle y se asigna un valor antes de pasar al siguiente estado
-        else
-            case current_state_reg is
+    if reset = '0' then
+        TX_reg            <= '1';
+        current_state_reg <= idle;
+        Speed_reg         <= normal;
+        N_bits_reg        <= eightBits;
+        -- No hay reset para pulse_count_reg y data_count_reg porque no se evaluan en idle y se asigna un valor antes de pasar al siguiente estado
+
+    elsif rising_edge(clk) then
+        case current_state_reg is
                 when Idle=>
-                    -- Solo se admite un cambio en velocidad y bits en el estado de idle.
-                    Speed_reg  <= Speed;
-                    N_bits_reg <= N_bits;
-                    if start='1' then
-                        current_state_reg <= StartBit;
-                        pulse_count_reg   <= (others=>'0');
-                    end if;
-                    
-                when StartBit=>
-                    TX_reg <= '0';
-                    if pulse_count_reg = pulse_width then
-                        current_state_reg <= SendData;
-                        pulse_count_reg   <= (others=>'0');
-                        data_count_reg    <= (others=>'0');
+                -- Solo se admite un cambio en velocidad y bits en el estado de idle.
+                Speed_reg  <= Speed;
+                N_bits_reg <= N_bits;
+                if start='1' then
+                    current_state_reg <= StartBit;
+                    pulse_count_reg   <= (others=>'0');
+                end if;
+                
+            when StartBit=>
+                TX_reg <= '0';
+                if pulse_count_reg = pulse_width then
+                    current_state_reg <= SendData;
+                    pulse_count_reg   <= (others=>'0');
+                    data_count_reg    <= (others=>'0');
+                else
+                    pulse_count_reg <= pulse_count_reg + 1;
+                end if;
+                
+            when SendData=>
+                TX_reg <= data(to_integer(data_count_reg));
+                if pulse_count_reg = pulse_width then
+                    pulse_count_reg <= (others=>'0');
+                    if data_count_reg = word_length then
+                        current_state_reg <= StopBit;
                     else
-                        pulse_count_reg <= pulse_count_reg + 1;
+                        data_count_reg <= data_count_reg + 1;
                     end if;
-                    
-                when SendData=>
-                    TX_reg <= data(to_integer(data_count_reg));
-                    if pulse_count_reg = pulse_width then
-                        pulse_count_reg <= (others=>'0');
-                        if data_count_reg = word_length then
-                            current_state_reg <= StopBit;
-                        else
-                            data_count_reg <= data_count_reg + 1;
-                        end if;
-                    else
-                        pulse_count_reg <= pulse_count_reg + 1;
-                    end if;
-                    
-                when StopBit=>
-                    TX_reg <= '1';
-                    if pulse_count_reg = pulse_width then
-                        current_state_reg <= idle;
-                        pulse_count_reg   <= (others=>'0');
-                    else
-                        pulse_count_reg <= pulse_count_reg + 1;
-                    end if;
-                    
-            end case;
-        end if;
+                else
+                    pulse_count_reg <= pulse_count_reg + 1;
+                end if;
+                
+            when StopBit=>
+                TX_reg <= '1';
+                if pulse_count_reg = pulse_width then
+                    current_state_reg <= idle;
+                    pulse_count_reg   <= (others=>'0');
+                else
+                    pulse_count_reg <= pulse_count_reg + 1;
+                end if;
+                
+        end case;
     end if;
 end process;
 
