@@ -22,7 +22,7 @@ component SplitDig is
 port(
 CLK: in std_logic;
 Reset: in std_logic;
-Data_i: in std_logic_vector(26 downto 0);
+Data_i: in std_logic_vector(27 downto 0);
 Enable: in std_logic;
 Data_o: out std_logic_vector(31 downto 0) --4 4 4
 );
@@ -48,29 +48,29 @@ signal dig_count: integer range 0 to 7;
 type std_segments_arr is array (7 downto 0) of  std_logic_vector(6 downto 0);
 signal Segment_arr: std_segments_arr;
 
---9999 9999 is 27b (101111101011110000011111111)
-signal sum_t: std_logic_vector(26 downto 0);
+--9999 9999 is 27b (0101111101011110000011111111)
+signal sum_t: std_logic_vector(27 downto 0);
 
 signal sum_enable_ant: std_logic;
 
 BEGIN
 
-splitDig_inst: SplitDig
-port map(
-CLk => CLK,
-Reset => reset,
-Data_i => sum_t,
-Enable => Sum_enable,
-Data_o => Data_split
-);
-
-decoder_generate: for i in 0 to 7 generate
-decoder_inst: Decoder
-port map(
-code => Data_split(3+4*i downto 4*i),
-segment => Segment_arr(i)
-);
-end generate decoder_generate;
+  splitDig_inst: SplitDig
+    port map(
+      CLk => CLK,
+      Reset => reset,
+      Data_i => sum_t,
+      Enable => Sum_enable,
+      Data_o => Data_split
+    );
+  
+  decoder_generate: for i in 0 to 7 generate
+    decoder_inst: Decoder
+      port map(
+        code => Data_split(3+4*i downto 4*i),
+        segment => Segment_arr(i)
+      );
+  end generate decoder_generate;
 
    counter_process: process(clk, reset)
    begin
