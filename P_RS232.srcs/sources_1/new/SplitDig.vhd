@@ -15,15 +15,20 @@ end SplitDig;
 
 architecture Behavioral of SplitDig is
 
-signal Data_i_aux : unsigned(Data_i'range);
-signal resto : unsigned(Data_i'range);
+signal Data_i_aux : unsigned(0 to Data_i'length-1);
+signal Data_o_aux : std_logic_vector(0 to Data_o'length-1);
+signal resto : unsigned(0 to 6);
 signal i : integer range 0 to 15;
 begin
+
+reverse_o_gen: for i in 0 to data_o'length-1 generate
+  data_o(i) <= data_o_aux(data_o'length-1 - i);
+end generate;
 
 process(CLK, reset)
 begin
     if reset='0' then
-        Data_o <= (others=>'0');
+        Data_o_aux <= (others=>'0');
     elsif rising_edge(clk) then
         if enable='0' then  
           i <= 15;
@@ -31,7 +36,7 @@ begin
           resto  <= (others=>'0');
         else
           if i = 15 then
-            reverse_gen: for i in 0 to data_i'length-1 loop
+            reverse_i_gen: for i in 0 to data_i'length-1 loop
               data_i_aux(i) <= data_i(data_i'length-1 - i);
             end loop;
             i <= 0;
@@ -39,18 +44,18 @@ begin
           if i < 8 then
             if i = 0 or i <= 6 then
               --división de 8 a 0 en tres vectores de 4 elementos                    
-                if Data_i_aux(3+4*i downto 4*i) + resto > 9 then
-                  Data_o(Data_o'length-1 -4*i downto Data_o'length-1 -3-4*i) <= std_logic_vector(to_unsigned(9,4));
+                if Data_i_aux(4*i to 3+4*i) + resto > 9 then
+                  Data_o_aux(4*i to 3+4*i) <= std_logic_vector(to_unsigned(9,4));
                   Data_i_aux <= resize(Data_i_aux - 9, Data_i_aux'length);
-                  resto <= resize(resto + Data_i_aux(3+4*i downto 4*i) - 9, resto'length);
+                  resto <= resize(resto + Data_i_aux(4*i to 3+4*i) - 9, resto'length);
                 else
-                  Data_o(Data_o'length-1 -4*i downto Data_o'length-1 -3-4*i) <= std_logic_vector(resize(Data_i_aux(3+4*i downto 4*i) + resto, 4));
-                  Data_i_aux <= resize(Data_i_aux - Data_i_aux(3+4*i downto 4*i) - resto, Data_i_aux'length);
+                  Data_o_aux(4*i to 3+4*i) <= std_logic_vector(resize(Data_i_aux(4*i to 3+4*i) + resto, 4));
+                  Data_i_aux <= resize(Data_i_aux - Data_i_aux(4*i to 3+4*i) - resto, Data_i_aux'length);
                   resto <= (others=>'0');
                 end if;
                 i <= i + 1;
             else
-              Data_o(3 downto 0) <= std_logic_vector(resize(Data_i_aux + resto, 4));
+              Data_o_aux(28 to 31) <= std_logic_vector(resize(Data_i_aux + resto, 4));
               resto <= (others => '0');
               i <= 12;
             end if;
